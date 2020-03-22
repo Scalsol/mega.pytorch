@@ -1,0 +1,25 @@
+MODEL:
+  VID:
+    METHOD: "rdn"
+    IGNORE: True
+    ROI_BOX_HEAD:
+      ATTENTION:
+        ENABLE: True
+        ADVANCED_STAGE: 1
+  META_ARCHITECTURE: "GeneralizedRCNNRDN"
+  WEIGHT: "models/RDN_base_R_101.pth"
+  BACKBONE:
+    CONV_BODY: "R-101-C4"
+  ROI_BOX_HEAD:
+    FEATURE_EXTRACTOR: "RDNFeatureExtractor"
+    PREDICTOR: "FPNPredictor"
+DATASETS:
+  TRAIN: ("DET_train_30classes", "VID_train_15frames")
+  TEST: ("VID_val_videos",)
+SOLVER:
+  BASE_LR: 0.001
+  WEIGHT_DECAY: 0.0001
+  STEPS: (40000, )
+  MAX_ITER: 60000
+  IMS_PER_BATCH: 4
+  WARMUP_ITERS: 500

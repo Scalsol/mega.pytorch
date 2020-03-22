@@ -1,0 +1,16 @@
+MODEL:
+  VID:
+    METHOD: "rdn"
+    ROI_BOX_HEAD:
+      ATTENTION:
+        ENABLE: True
+  META_ARCHITECTURE: "GeneralizedRCNNRDN"
+  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-101"
+  BACKBONE:
+    CONV_BODY: "R-101-C4"
+  ROI_BOX_HEAD:
+    FEATURE_EXTRACTOR: "RDNFeatureExtractor"
+    PREDICTOR: "FPNPredictor"
+DATASETS:
+  TRAIN: ("DET_train_30classes", "VID_train_15frames")
+  TEST: ("VID_val_videos",)

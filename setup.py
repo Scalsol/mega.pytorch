@@ -59,7 +59,7 @@ def get_extensions():
 setup(
     name="mega_core",
     version="0.1",
-    author="fmassa",
+    author="Scalsol",
     url="https://github.com/Scalsol/mega.pytorch",
     description="video object detection in pytorch",
     packages=find_packages(exclude=("configs", "tests",)),

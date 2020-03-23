@@ -6,7 +6,7 @@ By Yihong Chen, Yue Cao, Han Hu, Liwei Wang.
 
 ## Introduction
 
-This project is the codebase for implementing our MEGA algorithm for video object detection presented in our CVPR2020 paper.
+This project is the codebase based on [maskrcnn_benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) for implementing our MEGA algorithm for video object detection presented in our CVPR2020 paper.
 
 The full paper is available at:
 

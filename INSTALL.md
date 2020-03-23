@@ -62,7 +62,7 @@ cd mega.pytorch
 # re-build it
 python setup.py build develop
 
-pip install 'pillow<=7.0.0'
+pip install 'pillow<7.0.0'
 
 unset INSTALL_DIR
 

@@ -4,7 +4,7 @@
 
 By Yihong Chen, [Yue Cao](http://yue-cao.me), [Han Hu](https://ancientmooner.github.io/), [Liwei Wang](http://www.liweiwang-pku.com/).
 
-This repo is an official implementation of ["Memory Enhanced Global-Local Aggregation for Video Object Detection"](?) on video object detection, accepted by CVPR 2020. This repository contains a PyTorch implementation of our approach MEGA based on [maskrcnn_benchmark](https://github.com/facebookresearch/maskrcnn-benchmark), as well as some training scripts to reproduce the results on ImageNet VID reported in our paper. Besides, this repository also includes two more algorithms, namely [FGFA](http://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Flow-Guided_Feature_Aggregation_ICCV_2017_paper.html) and [RDN](arxiv.org/abs/1908.09511). We hope this repository would help further research in the field of video object detection and beyond. :)
+This repo is an official implementation of ["Memory Enhanced Global-Local Aggregation for Video Object Detection"](?), accepted by CVPR 2020. This repository contains a PyTorch implementation of our approach MEGA based on [maskrcnn_benchmark](https://github.com/facebookresearch/maskrcnn-benchmark), as well as some training scripts to reproduce the results on ImageNet VID reported in our paper. Besides, this repository also includes two more algorithms, namely [FGFA](http://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Flow-Guided_Feature_Aggregation_ICCV_2017_paper.html) and [RDN](arxiv.org/abs/1908.09511). We hope this repository would help further research in the field of video object detection and beyond. :)
 
 ## Citing MEGA
 Please cite our paper in your publications if it helps your research:

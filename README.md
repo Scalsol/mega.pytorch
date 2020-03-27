@@ -18,13 +18,16 @@ Please cite our paper in your publications if it helps your research:
 ```
 
 ## Main Results
+
+Pretrained models are now available at [Baidu](https://pan.baidu.com/s/1qjIAD3ohaJO8EF1mZ4nLEg) (code: neck) and Google Drive.
+
 Model | Backbone | AP50 | Link
 :---: | :---: | :---: | :---:
-single frame baseline | ResNet-101 | 76.7
-FGFA | ResNet-101 | 78.0
-RDN-base | ResNet-101 | 81.1
-RDN | ResNet-101 | 81.7
-MEGA | ResNet-101 | 82.9 
+single frame baseline | ResNet-101 | 76.7 | [Google](https://drive.google.com/file/d/1W17f9GC60rHU47lUeOEfU--Ra-LTw3Tq/view?usp=sharing)
+FGFA | ResNet-101 | 78.0 | [Google](https://drive.google.com/file/d/1yVgy7_ff1xVD1SooqbcK-OzKMgPpUcg4/view?usp=sharing)
+RDN-base | ResNet-101 | 81.1 | [Google](https://drive.google.com/file/d/1jM5LqlVtCGjKH-MocTCjzFIVjqCyng8M/view?usp=sharing)
+RDN | ResNet-101 | 81.7 | [Google](https://drive.google.com/file/d/1FgoOwj-GFAMVn2hkSFKnxn5fKWPSxlUF/view?usp=sharing)
+MEGA | ResNet-101 | 82.9 | [Google](https://drive.google.com/file/d/1ZnAdFafF1vW9Lnpw-RPF1AD_csw61lBY/view?usp=sharing)
 
 
 ## Installation
@@ -65,8 +68,6 @@ Please note that:
 2) If you want to evaluate a different model, please change `--config-file` to its config file and `MODEL.WEIGHT` to its weights file.
 3) Testing is time-consuming, so be patient!
 
-Pretrained weighted will be available!
-
 ### Training
 
 The following command line will train MEGA_R_101_FPN_1x on 4 GPUs with Synchronous Stochastic Gradient Descent (SGD):
@@ -82,8 +83,8 @@ Please note that:
 1) The models will be saved into `OUTPUT_DIR`.
 2) If you want to train MEGA and other methods with other backbones, please change `--config-file`.
 3) We provide template files named `BASE_RCNN_{}gpus.yaml` which would automatically change the batch size and other relevant settings. This behavior is similar to detectron2. If you want to train model with different number of gpus, please change it by yourself :)
-4) For training FGFA, we need pretrained weight of FlowNet. We provide the converted version [here](). After downloading it, it should be placed at `models/`. See `config/defaults.py` and the code for further details.
-5) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models/`. And directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
+4) For training FGFA, we need pretrained weight of FlowNet. We provide the converted version [here](https://drive.google.com/file/d/1gib7XtS1fSYDTM9RnUJ72a3vREV_6SJH/view?usp=sharing). After downloaded, it should be placed at `models/`. See `config/defaults.py` and the code for further details.
+5) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models/` and directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
 
 ## Contributing to the project
 Any pull requests or issues are welcomed.

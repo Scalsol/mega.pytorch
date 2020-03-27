@@ -4,7 +4,7 @@
 
 By Yihong Chen, [Yue Cao](http://yue-cao.me), [Han Hu](https://ancientmooner.github.io/), [Liwei Wang](http://www.liweiwang-pku.com/).
 
-This repo is an official implementation of ["Memory Enhanced Global-Local Aggregation for Video Object Detection"](?), accepted by CVPR 2020. This repository contains a PyTorch implementation of our approach MEGA based on [maskrcnn_benchmark](https://github.com/facebookresearch/maskrcnn-benchmark), as well as some training scripts to reproduce the results on ImageNet VID reported in our paper. Besides, this repository also includes two more algorithms, namely [FGFA](http://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Flow-Guided_Feature_Aggregation_ICCV_2017_paper.html) and [RDN](arxiv.org/abs/1908.09511). We hope this repository would help further research in the field of video object detection and beyond. :)
+This repo is an official implementation of ["Memory Enhanced Global-Local Aggregation for Video Object Detection"](https://arxiv.org/abs/2003.12063), accepted by CVPR 2020. This repository contains a PyTorch implementation of our approach MEGA based on [maskrcnn_benchmark](https://github.com/facebookresearch/maskrcnn-benchmark), as well as some training scripts to reproduce the results on ImageNet VID reported in our paper. Besides, this repository also includes two more algorithms, namely [FGFA](http://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Flow-Guided_Feature_Aggregation_ICCV_2017_paper.html) and [RDN](arxiv.org/abs/1908.09511). We hope this repository would help further research in the field of video object detection and beyond. :)
 
 ## Citing MEGA
 Please cite our paper in your publications if it helps your research:
@@ -63,12 +63,13 @@ The inference command line for testing on the validation dataset:
 Please note that:
 1) If your model's name is different, please replace `MEGA_R_101.pth` with your own.
 2) If you want to evaluate a different model, please change `--config-file` to its config file and `MODEL.WEIGHT` to its weights file.
+3) Testing is time-consuming, so be patient!
 
 Pretrained weighted will be available!
 
 ### Training
 
-The following command line will train MEGA_R_50_FPN_1x on 4 GPUs with Synchronous Stochastic Gradient Descent (SGD):
+The following command line will train MEGA_R_101_FPN_1x on 4 GPUs with Synchronous Stochastic Gradient Descent (SGD):
 
     python -m torch.distributed.launch \
         --nproc_per_node=4 \
@@ -82,7 +83,7 @@ Please note that:
 2) If you want to train MEGA and other methods with other backbones, please change `--config-file`.
 3) We provide template files named `BASE_RCNN_{}gpus.yaml` which would automatically change the batch size and other relevant settings. This behavior is similar to detectron2. If you want to train model with different number of gpus, please change it by yourself :)
 4) For training FGFA, we need pretrained weight of FlowNet. We provide the converted version [here](). After downloading it, it should be placed at `models/`. See `config/defaults.py` and the code for further details.
-5) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models`. And directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
+5) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models/`. And directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
 
 ## Contributing to the project
 Any pull requests or issues are welcomed.

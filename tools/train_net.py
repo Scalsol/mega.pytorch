@@ -66,7 +66,7 @@ def train(cfg, local_rank, distributed):
         cfg, model, optimizer, scheduler, output_dir, save_to_disk
     )
     extra_checkpoint_data = checkpointer.load(cfg.MODEL.WEIGHT, ignore=cfg.MODEL.VID.IGNORE)
-    if cfg.MODEL.VID.METHOD in ("fgfa", ):
+    if cfg.MODEL.VID.METHOD in ("fgfa", "dff"):
         checkpointer.load_flownet(cfg.MODEL.VID.FLOWNET_WEIGHT)
 
     if not cfg.MODEL.VID.IGNORE:

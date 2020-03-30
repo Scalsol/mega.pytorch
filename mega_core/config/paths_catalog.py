@@ -211,7 +211,8 @@ class DatasetCatalog(object):
                 "base": "VIDDataset",
                 "rdn": "VIDRDNDataset",
                 "mega": "VIDMEGADataset",
-                "fgfa": "VIDFGFADataset"
+                "fgfa": "VIDFGFADataset",
+                "dff": "VIDDFFDataset"
             }
             if ("DET" in name) or ("VID" in name):
                 data_dir = DatasetCatalog.DATA_DIR

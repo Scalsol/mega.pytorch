@@ -253,6 +253,7 @@ def build_rpn(cfg, in_channels):
     if cfg.MODEL.VID.ENABLE:
         FUNC_DICT = {"base": RPNModule,
                      "fgfa": RPNModule,
+                     "dff": RPNModule,
                      "rdn": RPNWithRefModule,
                      "mega": RPNWithRefModule}
         func = FUNC_DICT[cfg.MODEL.VID.METHOD]

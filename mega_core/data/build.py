@@ -63,11 +63,13 @@ def make_data_sampler(dataset, shuffle, distributed, method="base", is_train=Tru
     if distributed:
         if method in ("base", ):
             return samplers.DistributedSampler(dataset, shuffle=shuffle)
-        elif method in ("rdn", "mega", "fgfa"):
+        elif method in ("rdn", "mega", "fgfa", "dff"):
             if is_train:
                 return samplers.DistributedSampler(dataset, shuffle=shuffle)
             else:
                 return samplers.VIDTestDistributedSampler(dataset)
+        else:
+            raise NotImplementedError("Method {} is not implemented.".format(method))
     if shuffle:
         sampler = torch.utils.data.sampler.RandomSampler(dataset)
     else:

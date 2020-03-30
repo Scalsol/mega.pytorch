@@ -14,6 +14,7 @@ def crop_like(input, target):
 class FlowNetS(nn.Module):
     def __init__(self, cfg):
         super(FlowNetS, self).__init__()
+        self.method = cfg.MODEL.VID.METHOD
 
         self.flow_conv1 = nn.Conv2d(6, 64, kernel_size=7, stride=2, padding=3)
         self.conv2 = nn.Conv2d(64, 128, kernel_size=5, stride=2, padding=2)
@@ -31,6 +32,10 @@ class FlowNetS(nn.Module):
         self.Convolution3 = nn.Conv2d(770, 2, kernel_size=3, stride=1, padding=1)
         self.Convolution4 = nn.Conv2d(386, 2, kernel_size=3, stride=1, padding=1)
         self.Convolution5 = nn.Conv2d(194, 2, kernel_size=3, stride=1, padding=1)
+
+        if self.method == "dff":
+            self.Convolution5_scale = nn.Conv2d(194, 1024, kernel_size=1, stride=1, padding=0, bias=False)
+            torch.nn.init.zeros_(self.Convolution5_scale.weight)
 
         self.deconv5 = nn.ConvTranspose2d(1024, 512, kernel_size=4, stride=2)
         self.deconv4 = nn.ConvTranspose2d(1026, 256, kernel_size=4, stride=2)
@@ -104,7 +109,13 @@ class FlowNetS(nn.Module):
         concat5 = self.avgpool(concat5)
         Convolution5 = self.Convolution5(concat5)
 
-        return Convolution5 * 2.5
+        if self.method == "dff":
+            Convolution5_scale = self.Convolution5_scale(concat5)
+            Convolution5_scale = Convolution5_scale + torch.ones_like(Convolution5_scale)
+
+            return Convolution5 * 2.5, Convolution5_scale
+        elif self.method == "fgfa":
+            return Convolution5 * 2.5
 
 
 def build_flownet(cfg):

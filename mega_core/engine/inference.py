@@ -28,7 +28,7 @@ def compute_on_dataset(model, data_loader, device, bbox_aug, method, timer=None)
             else:
                 if method in ("base", ):
                     images = images.to(device)
-                elif method in ("rdn", "mega", "fgfa"):
+                elif method in ("rdn", "mega", "fgfa", "dff"):
                     images["cur"] = images["cur"].to(device)
                     for key in ("ref", "ref_l", "ref_m", "ref_g"):
                         if key in images.keys():

@@ -457,6 +457,11 @@ _C.MODEL.VID.FGFA.KEY_FRAME_LOCATION = 9
 
 _C.MODEL.VID.FGFA.REF_NUM = 2
 
+# DFF
+_C.MODEL.VID.DFF = CN()
+_C.MODEL.VID.DFF.MIN_OFFSET = -9
+_C.MODEL.VID.DFF.MAX_OFFSET = 0
+
 # ---------------------------------------------------------------------------- #
 # Solver
 # ---------------------------------------------------------------------------- #

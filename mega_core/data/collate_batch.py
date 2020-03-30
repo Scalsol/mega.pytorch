@@ -18,7 +18,7 @@ class BatchCollator(object):
         transposed_batch = list(zip(*batch))
         if self.method in ("base", ):
             images = to_image_list(transposed_batch[0], self.size_divisible)
-        elif self.method in ("rdn", "mega", "fgfa"):
+        elif self.method in ("rdn", "mega", "fgfa", "dff"):
             images = {}
             for key in transposed_batch[0][0].keys():
                 if key == "cur":

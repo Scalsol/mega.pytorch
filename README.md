@@ -12,7 +12,7 @@ Besides, this repository also implements several other algorithms like [FGFA](ht
 Please cite our paper in your publications if it helps your research:
 ```
 @inproceedings{chen20mega,
-    Author = {Yihong Chen, Yue Cao, Han Hu, Liwei Wang},
+    Author = {Chen, Yihong and Cao, Yue and Hu, Han and Wang, Liwei},
     Title = {Memory Enhanced Global-Local Aggregation for Video Object Detection},
     Conference = {CVPR},
     Year = {2020}

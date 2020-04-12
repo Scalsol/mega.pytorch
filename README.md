@@ -21,6 +21,7 @@ Please cite our paper in your publications if it helps your research:
 
 ## Updates
 
+- Results of ResNet-50 backbone added. (13/04/2020)
 - Code and pretrained weights for [Deep Feature Flow](https://arxiv.org/abs/1611.07715) released. (30/03/2020)
 
 ## Main Results
@@ -34,8 +35,17 @@ DFF | ResNet-101 | 75.0 | [Google](https://drive.google.com/file/d/1Dn_RQRlA7z2X
 FGFA | ResNet-101 | 78.0 | [Google](https://drive.google.com/file/d/1yVgy7_ff1xVD1SooqbcK-OzKMgPpUcg4/view?usp=sharing)
 RDN-base | ResNet-101 | 81.1 | [Google](https://drive.google.com/file/d/1jM5LqlVtCGjKH-MocTCjzFIVjqCyng8M/view?usp=sharing)
 RDN | ResNet-101 | 81.7 | [Google](https://drive.google.com/file/d/1FgoOwj-GFAMVn2hkSFKnxn5fKWPSxlUF/view?usp=sharing)
-MEGA | ResNet-101 | 82.9 | [Google](https://drive.google.com/file/d/1ZnAdFafF1vW9Lnpw-RPF1AD_csw61lBY/view?usp=sharing)
+**MEGA** | ResNet-101 | 82.9 | [Google](https://drive.google.com/file/d/1ZnAdFafF1vW9Lnpw-RPF1AD_csw61lBY/view?usp=sharing)
 
+Model | Backbone | AP50 | Link
+:---: | :---: | :---: | :---:
+single frame baseline | ResNet-50 | 71.8 | [Google](https://drive.google.com/file/d/1i39MwpP46x61eHLkRXMzcKhpeKZhkgA6/view?usp=sharing)
+DFF | ResNet-50 | 70.4 | [Google](https://drive.google.com/file/d/1wl9Sheg46ecJOWzl1Uy4BWaCDRtSt51_/view?usp=sharing)
+FGFA | ResNet-50 | 74.3 | [Google](https://drive.google.com/file/d/1nJ6CbUG_wW_gvMs193b7f0c1QLnXqAzO/view?usp=sharing)
+RDN-base | ResNet-50 | 76.7 | [Google](https://drive.google.com/file/d/10k70lzSrxXiLWYx8tmX3RNuOQ2x1X0k8/view?usp=sharing)
+**MEGA** | ResNet-50 | 77.3 | [Google](https://drive.google.com/file/d/1EZzpBuCfI75bsd_gxK1495tXlh0K_34H/view?usp=sharing)
+
+**Note**: The performance of ResNet-50 backbone are not so stable. 
 
 ## Installation
 
@@ -60,6 +70,8 @@ Please download ILSVRC2015 DET and ILSVRC2015 VID dataset from [here](http://ima
 
 **Note**: Currently, one GPU could only hold 1 image. Do not put 2 or more images on 1 GPU!
 
+**Note** We provide template files named `BASE_RCNN_{}gpus.yaml` which would automatically change the batch size and other relevant settings. This behavior is similar to detectron2. If you want to train model with different number of gpus, please change it by yourself :) But assure **1 GPU only holds 1 image**! That is to say, you should always keep `SOLVER.IMS_PER_BATCH` and `TEST.IMS_PER_BATCH` equal to the number of GPUs you use.
+
 ### Inference
 
 The inference command line for testing on the validation dataset:
@@ -81,17 +93,16 @@ The following command line will train MEGA_R_101_FPN_1x on 4 GPUs with Synchrono
 
     python -m torch.distributed.launch \
         --nproc_per_node=4 \
-        --master_port=$((RANDOM + 10000)) \
         tools/train_net.py \
+        --master_port=$((RANDOM + 10000)) \
         --config-file configs/MEGA/vid_R_101_C4_MEGA_1x.yaml \
         OUTPUT_DIR training_dir/MEGA_R_101_1x
         
 Please note that:
 1) The models will be saved into `OUTPUT_DIR`.
 2) If you want to train MEGA and other methods with other backbones, please change `--config-file`.
-3) We provide template files named `BASE_RCNN_{}gpus.yaml` which would automatically change the batch size and other relevant settings. This behavior is similar to detectron2. If you want to train model with different number of gpus, please change it by yourself :)
-4) For training FGFA and DFF, we need pretrained weight of FlowNet. We provide the converted version [here](https://drive.google.com/file/d/1gib7XtS1fSYDTM9RnUJ72a3vREV_6SJH/view?usp=sharing). After downloaded, it should be placed at `models/`. See `config/defaults.py` and the code for further details.
-5) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models/` and directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
+3) For training FGFA and DFF, we need pretrained weight of FlowNet. We provide the converted version [here](https://drive.google.com/file/d/1gib7XtS1fSYDTM9RnUJ72a3vREV_6SJH/view?usp=sharing). After downloaded, it should be placed at `models/`. See `config/defaults.py` and the code for further details.
+4) For training RDN, we adopt the same two-stage training strategy as described in its original paper. The first phase should be run with config file `configs/RDN/vid_R_101_C4_RDN_base_1x.yaml`. For the second phase, `MODEL.WEIGHT` should be set to the filename of the final model of the first stage training. Or you could rename the model's filename to `RDN_base_R_101.pth` and put it under `models/` and directly train the second phase with config file `configs/RDN/vid_R_101_C4_RDN_1x.yaml`.
 
 ### Tips for implementing your own method
 

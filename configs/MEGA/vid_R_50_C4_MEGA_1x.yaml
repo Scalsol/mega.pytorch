@@ -1,0 +1,21 @@
+MODEL:
+  VID:
+    METHOD: "mega"
+    ROI_BOX_HEAD:
+      REDUCE_CHANNEL: True
+      ATTENTION:
+        ENABLE: True
+        STAGE: 3
+    MEGA:
+      GLOBAL:
+        RES_STAGE: 0
+  META_ARCHITECTURE: "GeneralizedRCNNMEGA"
+  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
+  BACKBONE:
+    CONV_BODY: "R-50-C4"
+  ROI_BOX_HEAD:
+    FEATURE_EXTRACTOR: "MEGAFeatureExtractor"
+    PREDICTOR: "FPNPredictor"
+DATASETS:
+  TRAIN: ("DET_train_30classes", "VID_train_15frames")
+  TEST: ("VID_val_videos",)

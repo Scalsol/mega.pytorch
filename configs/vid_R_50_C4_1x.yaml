@@ -1,0 +1,11 @@
+MODEL:
+  VID:
+    ROI_BOX_HEAD:
+      REDUCE_CHANNEL: True
+  META_ARCHITECTURE: "GeneralizedRCNN"
+  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"
+  BACKBONE:
+    CONV_BODY: "R-50-C4"
+  ROI_BOX_HEAD:
+    FEATURE_EXTRACTOR: "ResNetConv52MLPFeatureExtractor"
+    PREDICTOR: "FPNPredictor"

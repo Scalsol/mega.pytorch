@@ -31,6 +31,11 @@ parser.add_argument(
     help="the folder or a video to visualize.",
 )
 parser.add_argument(
+    "--suffix",
+    default=".JPEG",
+    help="the suffix of the images in the image folder.",
+)
+parser.add_argument(
     "--output-folder",
     default="demo/visualization/base",
     help="where to store the visulization result.",
@@ -59,7 +64,7 @@ vid_demo = VIDDemo(
 )
 
 if not args.video:
-    visualization_results = vid_demo.run_on_image_folder(args.visualize_path)
+    visualization_results = vid_demo.run_on_image_folder(args.visualize_path, suffix=args.suffix)
 else:
     visualization_results = vid_demo.run_on_video(args.visualize_path)
 

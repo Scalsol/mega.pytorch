@@ -10,7 +10,7 @@ class Compose(object):
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
         for t in self.transforms:
             image, target = t(image, target)
         return image, target
@@ -68,7 +68,7 @@ class RandomHorizontalFlip(object):
         self.prob = prob
         self.chance = 0.0
 
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
         if target is not None:
             self.chance = random.random()
         if self.chance < self.prob:
@@ -83,7 +83,7 @@ class RandomVerticalFlip(object):
     def __init__(self, prob=0.5):
         self.prob = prob
 
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
         if random.random() < self.prob:
             image = F.vflip(image)
             if target is not None:
@@ -104,13 +104,13 @@ class ColorJitter(object):
             saturation=saturation,
             hue=hue,)
 
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
         image = self.color_jitter(image)
         return image, target
 
 
 class ToTensor(object):
-    def __call__(self, image, target):
+    def __call__(self, image, target=None):
         return F.to_tensor(image), target
 
 

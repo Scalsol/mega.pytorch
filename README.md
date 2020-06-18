@@ -41,7 +41,7 @@ RDN | ResNet-101 | 81.7 | | | | [Google](https://drive.google.com/file/d/1FgoOwj
 
 Model | Backbone | AP50 | AP(fast) | AP(med) | AP(slow) | Link
 :---: | :---: | :---: | :---: | :---: | :---: |:---:
-single frame baseline | ResNet-50 | 71.8 | | | | [Google](https://drive.google.com/file/d/1i39MwpP46x61eHLkRXMzcKhpeKZhkgA6/view?usp=sharing)
+single frame baseline | ResNet-50 | 71.8 | 47.2 | 69.2 | 80.6| [Google](https://drive.google.com/file/d/1i39MwpP46x61eHLkRXMzcKhpeKZhkgA6/view?usp=sharing)
 DFF | ResNet-50 | 70.4 | | | | [Google](https://drive.google.com/file/d/1wl9Sheg46ecJOWzl1Uy4BWaCDRtSt51_/view?usp=sharing)
 FGFA | ResNet-50 | 74.3 | | | |  [Google](https://drive.google.com/file/d/1nJ6CbUG_wW_gvMs193b7f0c1QLnXqAzO/view?usp=sharing)
 RDN-base | ResNet-50 | 76.7 | | | | [Google](https://drive.google.com/file/d/10k70lzSrxXiLWYx8tmX3RNuOQ2x1X0k8/view?usp=sharing)
@@ -90,7 +90,7 @@ Please note that:
 2) If you want to evaluate a different model, please change `--config-file` to its config file and `MODEL.WEIGHT` to its weights file.
 3) If you do not want to evaluate motion-IoU specific AP, simply deleting `--motion-specific`.
 4) Testing is time-consuming, so be patient!
-5) As testing on above 170000+ frames is toooo time-consuming, so we enable directly testing on generated bounding boxes, which is automatically saved in a file named `predictions.pth` on your training directory. That means you do not need to run the evaluation from the very start. You could access this by running:
+5) As testing on above 170000+ frames is toooo time-consuming, so we enable directly testing on generated bounding boxes, which is automatically saved in a file named `predictions.pth` on your training directory. That means you do not need to run the evaluation from the very start every time. You could access this by running:
 ```
     python tools/test_prediction.py \
         --config-file configs/MEGA/vid_R_101_C4_MEGA_1x.yaml \

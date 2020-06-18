@@ -36,44 +36,29 @@ def do_vid_evaluation(dataset, predictions, output_folder, box_only, motion_spec
                 fid.write(result_str)
         return
 
-    # result = eval_detection_vid(
-    #     pred_boxlists=pred_boxlists,
-    #     gt_boxlists=gt_boxlists,
-    #     iou_thresh=0.5,
-    #     use_07_metric=False,
-    # )
-    # result_str = "mAP: {:.4f}\n".format(result["map"])
-    # for i, ap in enumerate(result["ap"]):
-    #     if i == 0:  # skip background
-    #         continue
-    #     result_str += "{:<16}: {:.4f}\n".format(
-    #         dataset.map_class_id_to_class_name(i), ap
-    #     )
-    # logger.info(result_str)
-    # if output_folder:
-    #     with open(os.path.join(output_folder, "result.txt"), "w") as fid:
-    #         fid.write(result_str)
-
-    if motion_specific:
-        motion_ranges = [[0.0, 1.0], [0.0, 0.7], [0.7, 0.9], [0.9, 1.0]]
-        motion_name = ["all", "fast", "medium", "slow"]
-    else:
-        motion_ranges = [[0.0, 1.0]]
-        motion_name = ["all"]
-    result = eval_detection_vid_motion(
+    result = eval_detection_vid(
         pred_boxlists=pred_boxlists,
         gt_boxlists=gt_boxlists,
         iou_thresh=0.5,
-        motion_ranges=motion_ranges,
-        use_07_metric=False
+        use_07_metric=False,
     )
+    result_str = 'AP50 | motion={:>6s} = {:0.4f}\n'.format("all", result["map"])
 
-    result_str = ""
-    template_str = 'AP50 | motion={:>6s} = {:0.4f}\n'
-    for motion_index in range(len(motion_name)):
-        result_str += template_str.format(motion_name[motion_index], result[motion_index]["map"])
-    result_str += "Category AP:\n"
-    for i, ap in enumerate(result[0]["ap"]):
+    if motion_specific:
+        motion_ranges = [[0.0, 0.7], [0.7, 0.9], [0.9, 1.0]]
+        motion_name = ["fast", "medium", "slow"]
+        result_motion = eval_detection_vid_motion(
+            pred_boxlists=pred_boxlists,
+            gt_boxlists=gt_boxlists,
+            iou_thresh=0.5,
+            motion_ranges=motion_ranges,
+            use_07_metric=False
+        )
+        template_str = 'AP50 | motion={:>6s} = {:0.4f}\n'
+        for motion_index in range(len(motion_name)):
+            result_str += template_str.format(motion_name[motion_index], result_motion[motion_index]["map"])
+        result_str += "Category AP:\n"
+    for i, ap in enumerate(result["ap"]):
         if i == 0:  # skip background
             continue
         result_str += "{:<16}: {:.4f}\n".format(
@@ -284,6 +269,10 @@ def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, iou_thresh=0.5):
 
 
 def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, iou_thresh=0.5, motion_range=[0., 1.]):
+    all_motion_iou = np.concatenate(motion_ious, axis=0)
+    empty_weight = sum([(all_motion_iou[i] >= motion_range[0]) & (all_motion_iou[i] <= motion_range[1]) for i in
+                        range(len(all_motion_iou))]) / float(len(all_motion_iou))
+
     n_pos = defaultdict(int)
     score = defaultdict(list)
     match = defaultdict(list)
@@ -323,7 +312,7 @@ def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, 
                 continue
             if len(gt_bbox_l) == 0:
                 match[l].extend((0,) * pred_bbox_l.shape[0])
-                pred_ignore[l].extend((0,) * pred_bbox_l.shape[0])
+                pred_ignore[l].extend((empty_weight,) * pred_bbox_l.shape[0])
                 continue
 
             # VID evaluation follows integer typed bounding boxes.
@@ -341,11 +330,15 @@ def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, 
             selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
             for j in range(0, num_obj):
                 iou_match = iou_thresh
+                iou_match_ig = -1
+                iou_match_nig = -1
                 arg_match = -1
                 for k in range(0, num_gt_obj):
-                    if selec[k]:
-                        continue
-                    if iou[j, k] < iou_match:
+                    if (gt_ignore_l[k] == 1) & (iou[j, k] > iou_match_ig):
+                        iou_match_ig = iou[j, k]
+                    if (gt_ignore_l[k] == 0) & (iou[j, k] > iou_match_nig):
+                        iou_match_nig = iou[j, k]
+                    if selec[k] or iou[j, k] < iou_match:
                         continue
                     if iou[j, k] == iou_match:
                         if arg_match < 0 or gt_ignore_l[arg_match]:
@@ -359,10 +352,17 @@ def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, 
                     pred_ignore[l].append(gt_ignore_l[arg_match])
                     selec[arg_match] = True
                 else:
+                    if iou_match_nig > iou_match_ig:
+                        pred_ignore[l].append(0)
+                    elif iou_match_ig > iou_match_nig:
+                        pred_ignore[l].append(1)
+                    else:
+                        pred_ignore[l].append(sum(gt_ignore_l) / float(num_gt_obj))
                     match[l].append(0)
-                    pred_ignore[l].append(0)
+                    # pred_ignore[l].append(0)
 
     n_fg_class = max(n_pos.keys()) + 1
+    print(n_pos)
     prec = [None] * n_fg_class
     rec = [None] * n_fg_class
 
@@ -375,15 +375,17 @@ def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, 
         match_l = match_l[order]
         pred_ignore_l = pred_ignore_l[order]
 
-        tps = np.logical_and(match_l == 1, np.logical_not(pred_ignore_l))
-        fps = np.logical_and(match_l == 0, np.logical_not(pred_ignore_l))
+        tps = np.logical_and(match_l == 1, np.logical_not(pred_ignore_l == 1))
+        fps = np.logical_and(match_l == 0, np.logical_not(pred_ignore_l == 1))
+        pred_ignore_l[pred_ignore_l == 0] = 1
+        fps = fps * pred_ignore_l
 
         tp = np.cumsum(tps)
         fp = np.cumsum(fps)
 
         # If an element of fp + tp is 0,
         # the corresponding element of prec[l] is nan.
-        prec[l] = tp / (fp + tp)
+        prec[l] = tp / (fp + tp + np.spacing(1))
         # If n_pos[l] is 0, rec[l] is None.
         if n_pos[l] > 0:
             rec[l] = tp / n_pos[l]

@@ -25,7 +25,7 @@ source activate MEGA
 conda install ipython pip
 
 # mega and coco api dependencies
-pip install ninja yacs cython matplotlib tqdm opencv-python
+pip install ninja yacs cython matplotlib tqdm opencv-python scipy
 
 # follow PyTorch installation in https://pytorch.org/get-started/locally/
 # we give the instructions for CUDA 10.0

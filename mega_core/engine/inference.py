@@ -75,6 +75,7 @@ def inference(
         data_loader,
         dataset_name,
         iou_types=("bbox",),
+        motion_specific=False,
         box_only=False,
         bbox_aug=False,
         device="cuda",
@@ -120,6 +121,7 @@ def inference(
     extra_args = dict(
         box_only=box_only,
         iou_types=iou_types,
+        motion_specific=motion_specific,
         expected_results=expected_results,
         expected_results_sigma_tol=expected_results_sigma_tol,
     )
@@ -133,6 +135,7 @@ def inference(
 def inference_no_model(
         data_loader,
         iou_types=("bbox",),
+        motion_specific=False,
         box_only=False,
         expected_results=(),
         expected_results_sigma_tol=4,
@@ -146,6 +149,7 @@ def inference_no_model(
     extra_args = dict(
         box_only=box_only,
         iou_types=iou_types,
+        motion_specific=motion_specific,
         expected_results=expected_results,
         expected_results_sigma_tol=expected_results_sigma_tol,
     )

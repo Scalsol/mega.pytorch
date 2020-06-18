@@ -3,6 +3,7 @@ from __future__ import division
 import os
 from collections import defaultdict
 import numpy as np
+import scipy.io as sio
 
 import torch
 
@@ -10,7 +11,7 @@ from mega_core.structures.bounding_box import BoxList
 from mega_core.structures.boxlist_ops import boxlist_iou
 
 
-def do_vid_evaluation(dataset, predictions, output_folder, box_only, logger):
+def do_vid_evaluation(dataset, predictions, output_folder, box_only, motion_specific, logger):
     pred_boxlists = []
     gt_boxlists = []
     for image_id, prediction in enumerate(predictions):
@@ -35,23 +36,54 @@ def do_vid_evaluation(dataset, predictions, output_folder, box_only, logger):
                 fid.write(result_str)
         return
 
-    result = eval_detection_vid(
+    # result = eval_detection_vid(
+    #     pred_boxlists=pred_boxlists,
+    #     gt_boxlists=gt_boxlists,
+    #     iou_thresh=0.5,
+    #     use_07_metric=False,
+    # )
+    # result_str = "mAP: {:.4f}\n".format(result["map"])
+    # for i, ap in enumerate(result["ap"]):
+    #     if i == 0:  # skip background
+    #         continue
+    #     result_str += "{:<16}: {:.4f}\n".format(
+    #         dataset.map_class_id_to_class_name(i), ap
+    #     )
+    # logger.info(result_str)
+    # if output_folder:
+    #     with open(os.path.join(output_folder, "result.txt"), "w") as fid:
+    #         fid.write(result_str)
+
+    if motion_specific:
+        motion_ranges = [[0.0, 1.0], [0.0, 0.7], [0.7, 0.9], [0.9, 1.0]]
+        motion_name = ["all", "fast", "medium", "slow"]
+    else:
+        motion_ranges = [[0.0, 1.0]]
+        motion_name = ["all"]
+    result = eval_detection_vid_motion(
         pred_boxlists=pred_boxlists,
         gt_boxlists=gt_boxlists,
         iou_thresh=0.5,
-        use_07_metric=False,
+        motion_ranges=motion_ranges,
+        use_07_metric=False
     )
-    result_str = "mAP: {:.4f}\n".format(result["map"])
-    for i, ap in enumerate(result["ap"]):
+
+    result_str = ""
+    template_str = 'AP50 | motion={:>6s} = {:0.4f}\n'
+    for motion_index in range(len(motion_name)):
+        result_str += template_str.format(motion_name[motion_index], result[motion_index]["map"])
+    result_str += "Category AP:\n"
+    for i, ap in enumerate(result[0]["ap"]):
         if i == 0:  # skip background
             continue
         result_str += "{:<16}: {:.4f}\n".format(
             dataset.map_class_id_to_class_name(i), ap
         )
-    logger.info(result_str)
+    logger.info("\n" + result_str)
     if output_folder:
         with open(os.path.join(output_folder, "result.txt"), "w") as fid:
             fid.write(result_str)
+
     return result
 
 
@@ -125,6 +157,36 @@ def eval_detection_vid(pred_boxlists, gt_boxlists, iou_thresh=0.5, use_07_metric
     return {"ap": ap, "map": np.nanmean(ap)}
 
 
+def eval_detection_vid_motion(pred_boxlists,
+                              gt_boxlists,
+                              iou_thresh=0.5,
+                              motion_ranges=[[0.0, 0.7], [0.7, 0.9], [0.9, 1.0]],
+                              use_07_metric=False):
+    assert len(gt_boxlists) == len(
+        pred_boxlists
+    ), "Length of gt and pred lists need to be same."
+
+    motion_iou_file = "mega_core/data/datasets/evaluation/vid/vid_groundtruth_motion_iou.mat"
+    motion_ious = sio.loadmat(motion_iou_file)
+    motion_ious = np.array([[motion_ious['motion_iou'][i][0][j][0] if len(motion_ious['motion_iou'][i][0][j]) != 0 else 0 \
+                            for j in range(len(motion_ious['motion_iou'][i][0]))] \
+                           for i in range(len(motion_ious['motion_iou']))])
+
+    motion_ap = defaultdict(dict)
+    for motion_index, motion_range in enumerate(motion_ranges):
+        print("Evaluating motion iou range {} - {}".format(motion_range[0], motion_range[1]))
+        prec, rec = calc_detection_vid_prec_rec_motion(
+            pred_boxlists=pred_boxlists,
+            gt_boxlists=gt_boxlists,
+            motion_ious=motion_ious,
+            iou_thresh=iou_thresh,
+            motion_range=motion_range,
+        )
+        ap = calc_detection_vid_ap(prec, rec, use_07_metric=use_07_metric)
+        motion_ap[motion_index] = {"ap": ap, "map": np.nanmean(ap)}
+    return motion_ap
+
+
 def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, iou_thresh=0.5):
     """Calculate precision and recall based on evaluation code of VID.
     This function calculates precision and recall of
@@ -182,12 +244,12 @@ def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, iou_thresh=0.5):
 
             selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
             for j in range(0, num_obj):
-                iou_match = -1
+                iou_match = iou_thresh
                 arg_match = -1
                 for k in range(0, num_gt_obj):
                     if selec[k]:
                         continue
-                    if iou[j, k] >= iou_thresh and iou[j, k] > iou_match:
+                    if iou[j, k] >= iou_match:
                         iou_match = iou[j, k]
                         arg_match = k
                 if arg_match >= 0:
@@ -195,22 +257,6 @@ def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, iou_thresh=0.5):
                     selec[arg_match] = True
                 else:
                     match[l].append(0)
-
-            # gt_index = iou.argmax(axis=1)
-            # # set -1 if there is no matching ground truth
-            # gt_index[iou.max(axis=1) < iou_thresh] = -1
-            # del iou
-            #
-            # selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
-            # for gt_idx in gt_index:
-            #     if gt_idx >= 0:
-            #         if not selec[gt_idx]:
-            #             match[l].append(1)
-            #         else:
-            #             match[l].append(0)
-            #         selec[gt_idx] = True
-            #     else:
-            #         match[l].append(0)
 
     n_fg_class = max(n_pos.keys()) + 1
     print(n_pos)
@@ -226,6 +272,114 @@ def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, iou_thresh=0.5):
 
         tp = np.cumsum(match_l == 1)
         fp = np.cumsum(match_l == 0)
+
+        # If an element of fp + tp is 0,
+        # the corresponding element of prec[l] is nan.
+        prec[l] = tp / (fp + tp + np.spacing(1))
+        # If n_pos[l] is 0, rec[l] is None.
+        if n_pos[l] > 0:
+            rec[l] = tp / n_pos[l]
+
+    return prec, rec
+
+
+def calc_detection_vid_prec_rec_motion(gt_boxlists, pred_boxlists, motion_ious, iou_thresh=0.5, motion_range=[0., 1.]):
+    n_pos = defaultdict(int)
+    score = defaultdict(list)
+    match = defaultdict(list)
+    pred_ignore = defaultdict(list)
+    for gt_boxlist, pred_boxlist, motion_iou in zip(gt_boxlists, pred_boxlists, motion_ious):
+        pred_bbox = pred_boxlist.bbox.numpy()
+        pred_label = pred_boxlist.get_field("labels").numpy()
+        pred_score = pred_boxlist.get_field("scores").numpy()
+        gt_bbox = gt_boxlist.bbox.numpy()
+        gt_label = gt_boxlist.get_field("labels").numpy()
+        gt_ignore = np.zeros(len(gt_bbox))
+
+        for gt_index, gt in enumerate(gt_bbox):
+            if motion_iou[gt_index] < motion_range[0] or motion_iou[gt_index] > motion_range[1]:
+                gt_ignore[gt_index] = 1
+            else:
+                gt_ignore[gt_index] = 0
+
+        for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
+            pred_mask_l = pred_label == l
+            pred_bbox_l = pred_bbox[pred_mask_l]
+            pred_score_l = pred_score[pred_mask_l]
+
+            # sort by score
+            order = pred_score_l.argsort()[::-1]
+            pred_bbox_l = pred_bbox_l[order]
+            pred_score_l = pred_score_l[order]
+
+            gt_mask_l = gt_label == l
+            gt_bbox_l = gt_bbox[gt_mask_l]
+            gt_ignore_l = gt_ignore[gt_mask_l]
+
+            n_pos[l] += gt_bbox_l.shape[0] - sum(gt_ignore_l)
+            score[l].extend(pred_score_l)
+
+            if len(pred_bbox_l) == 0:
+                continue
+            if len(gt_bbox_l) == 0:
+                match[l].extend((0,) * pred_bbox_l.shape[0])
+                pred_ignore[l].extend((0,) * pred_bbox_l.shape[0])
+                continue
+
+            # VID evaluation follows integer typed bounding boxes.
+            pred_bbox_l = pred_bbox_l.copy()
+            pred_bbox_l[:, 2:] += 1
+            gt_bbox_l = gt_bbox_l.copy()
+            gt_bbox_l[:, 2:] += 1
+            iou = boxlist_iou(
+                BoxList(pred_bbox_l, gt_boxlist.size),
+                BoxList(gt_bbox_l, gt_boxlist.size),
+            ).numpy()
+
+            num_obj, num_gt_obj = iou.shape
+
+            selec = np.zeros(gt_bbox_l.shape[0], dtype=bool)
+            for j in range(0, num_obj):
+                iou_match = iou_thresh
+                arg_match = -1
+                for k in range(0, num_gt_obj):
+                    if selec[k]:
+                        continue
+                    if iou[j, k] < iou_match:
+                        continue
+                    if iou[j, k] == iou_match:
+                        if arg_match < 0 or gt_ignore_l[arg_match]:
+                            arg_match = k
+                    else:
+                        arg_match = k
+                    iou_match = iou[j, k]
+
+                if arg_match >= 0:
+                    match[l].append(1)
+                    pred_ignore[l].append(gt_ignore_l[arg_match])
+                    selec[arg_match] = True
+                else:
+                    match[l].append(0)
+                    pred_ignore[l].append(0)
+
+    n_fg_class = max(n_pos.keys()) + 1
+    prec = [None] * n_fg_class
+    rec = [None] * n_fg_class
+
+    for l in n_pos.keys():
+        score_l = np.array(score[l])
+        match_l = np.array(match[l], dtype=np.int8)
+        pred_ignore_l = np.array(pred_ignore[l])
+
+        order = score_l.argsort()[::-1]
+        match_l = match_l[order]
+        pred_ignore_l = pred_ignore_l[order]
+
+        tps = np.logical_and(match_l == 1, np.logical_not(pred_ignore_l))
+        fps = np.logical_and(match_l == 0, np.logical_not(pred_ignore_l))
+
+        tp = np.cumsum(tps)
+        fp = np.cumsum(fps)
 
         # If an element of fp + tp is 0,
         # the corresponding element of prec[l] is nan.

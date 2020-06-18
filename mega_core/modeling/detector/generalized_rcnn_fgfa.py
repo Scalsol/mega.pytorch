@@ -178,6 +178,8 @@ class GeneralizedRCNNFGFA(nn.Module):
                 end_image = Image.open(infos["img_dir"] % end_filename).convert("RGB")
 
                 end_image = infos["transforms"](end_image)
+                if isinstance(end_image, tuple):
+                    end_image = end_image[0]
                 end_image = end_image.view(1, *end_image.shape).to(self.device)
 
                 update_feature(end_image)

@@ -104,7 +104,7 @@ def train(cfg, local_rank, distributed):
     return model
 
 
-def run_test(cfg, model, distributed):
+def run_test(cfg, model, distributed, motion_specific=False):
     if distributed:
         model = model.module
     torch.cuda.empty_cache()  # TODO check if it helps
@@ -128,6 +128,7 @@ def run_test(cfg, model, distributed):
             data_loader_val,
             dataset_name=dataset_name,
             iou_types=iou_types,
+            motion_specific=motion_specific,
             box_only=False if cfg.MODEL.RETINANET_ON else cfg.MODEL.RPN_ONLY,
             bbox_aug=cfg.TEST.BBOX_AUG.ENABLED,
             device=cfg.MODEL.DEVICE,
@@ -161,6 +162,12 @@ def main():
     )
     parser.add_argument("--master_port", "-mp", type=str, default='29999')
     parser.add_argument("--save_name", default="", help="Where to store the log", type=str)
+    parser.add_argument(
+        "--motion-specific",
+        "-ms",
+        action="store_true",
+        help="if True, evaluate motion-specific iou"
+    )
     parser.add_argument(
         "opts",
         help="Modify config options using the command-line",
@@ -212,7 +219,7 @@ def main():
     model = train(cfg, args.local_rank, args.distributed)
 
     if not args.skip_test:
-        run_test(cfg, model, args.distributed)
+        run_test(cfg, model, args.distributed, args.motion_specific)
 
 
 if __name__ == "__main__":

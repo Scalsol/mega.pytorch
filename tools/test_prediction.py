@@ -29,7 +29,7 @@ def main():
         help="path to config file",
     )
     parser.add_argument(
-        "--prediction",
+        "--prediction-folder",
         help="The path to the prediction file to be evaluated.",
         default=None,
     )
@@ -64,9 +64,9 @@ def main():
         iou_types = iou_types + ("keypoints",)
     output_folders = [None] * len(cfg.DATASETS.TEST)
     dataset_names = cfg.DATASETS.TEST
-    if cfg.OUTPUT_DIR:
+    if args.prediction_folder:
         for idx, dataset_name in enumerate(dataset_names):
-            output_folder = os.path.join(cfg.OUTPUT_DIR, "inference", dataset_name)
+            output_folder = os.path.join(args.prediction_folder, "inference", dataset_name)
             mkdir(output_folder)
             output_folders[idx] = output_folder
     data_loaders_val = make_data_loader(cfg, is_train=False)

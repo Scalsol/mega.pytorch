@@ -122,9 +122,9 @@ Please note that:
 ### Demo Usage
 Please follow [demo/README.md](demo/README.md) to see how to visualize your own images or video.
 
-### Tips for implementing your own method
+### Customize
 
-Intruction will be added.
+If you want to use these methods on your own dataset or implement your new method. Please follow [CUSTOMIZE.md](CUSTOMIZE.md).
 
 ## Contributing to the project
 Any pull requests or issues are welcomed.

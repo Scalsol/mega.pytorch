@@ -47,6 +47,7 @@ def do_vid_evaluation(dataset, predictions, output_folder, box_only, motion_spec
         gt_boxlists=gt_boxlists,
         iou_thresh=0.5,
         motion_ranges=motion_ranges,
+        motion_specific=motion_specific,
         use_07_metric=False
     )
     result_str = ""
@@ -122,16 +123,20 @@ def eval_detection_vid(pred_boxlists,
                        gt_boxlists,
                        iou_thresh=0.5,
                        motion_ranges=[[0.0, 0.7], [0.7, 0.9], [0.9, 1.0]],
+                       motion_specific=False,
                        use_07_metric=False):
     assert len(gt_boxlists) == len(
         pred_boxlists
     ), "Length of gt and pred lists need to be same."
 
-    motion_iou_file = "mega_core/data/datasets/evaluation/vid/vid_groundtruth_motion_iou.mat"
-    motion_ious = sio.loadmat(motion_iou_file)
-    motion_ious = np.array([[motion_ious['motion_iou'][i][0][j][0] if len(motion_ious['motion_iou'][i][0][j]) != 0 else 0 \
-                            for j in range(len(motion_ious['motion_iou'][i][0]))] \
-                           for i in range(len(motion_ious['motion_iou']))])
+    if motion_specific:
+        motion_iou_file = "mega_core/data/datasets/evaluation/vid/vid_groundtruth_motion_iou.mat"
+        motion_ious = sio.loadmat(motion_iou_file)
+        motion_ious = np.array([[motion_ious['motion_iou'][i][0][j][0] if len(motion_ious['motion_iou'][i][0][j]) != 0 else 0 \
+                                for j in range(len(motion_ious['motion_iou'][i][0]))] \
+                               for i in range(len(motion_ious['motion_iou']))])
+    else:
+        motion_ious = None
 
     motion_ap = defaultdict(dict)
     for motion_index, motion_range in enumerate(motion_ranges):
@@ -149,16 +154,19 @@ def eval_detection_vid(pred_boxlists,
 
 
 def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, motion_ious, iou_thresh=0.5, motion_range=[0., 1.]):
-    all_motion_iou = np.concatenate(motion_ious, axis=0)
-    empty_weight = sum([(all_motion_iou[i] >= motion_range[0]) & (all_motion_iou[i] <= motion_range[1]) for i in
-                        range(len(all_motion_iou))]) / float(len(all_motion_iou))
-    if empty_weight == 1:
-        empty_weight = 0
-
     n_pos = defaultdict(int)
     score = defaultdict(list)
     match = defaultdict(list)
     pred_ignore = defaultdict(list)
+    if motion_ious is None:
+        motion_ious = [None] * len(gt_boxlists)
+        empty_weight = 0
+    else:
+        all_motion_iou = np.concatenate(motion_ious, axis=0)
+        empty_weight = sum([(all_motion_iou[i] >= motion_range[0]) & (all_motion_iou[i] <= motion_range[1]) for i in
+                            range(len(all_motion_iou))]) / float(len(all_motion_iou))
+        if empty_weight == 1:
+            empty_weight = 0
     for gt_boxlist, pred_boxlist, motion_iou in zip(gt_boxlists, pred_boxlists, motion_ious):
         pred_bbox = pred_boxlist.bbox.numpy()
         pred_label = pred_boxlist.get_field("labels").numpy()
@@ -168,10 +176,11 @@ def calc_detection_vid_prec_rec(gt_boxlists, pred_boxlists, motion_ious, iou_thr
         gt_ignore = np.zeros(len(gt_bbox))
 
         for gt_index, gt in enumerate(gt_bbox):
-            if motion_iou[gt_index] < motion_range[0] or motion_iou[gt_index] > motion_range[1]:
-                gt_ignore[gt_index] = 1
-            else:
-                gt_ignore[gt_index] = 0
+            if motion_iou:
+                if motion_iou[gt_index] < motion_range[0] or motion_iou[gt_index] > motion_range[1]:
+                    gt_ignore[gt_index] = 1
+                else:
+                    gt_ignore[gt_index] = 0
 
         for l in np.unique(np.concatenate((pred_label, gt_label)).astype(int)):
             pred_mask_l = pred_label == l

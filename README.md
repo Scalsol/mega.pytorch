@@ -21,7 +21,7 @@ Please cite our paper in your publications if it helps your research:
 
 ## Updates
 
-- Add motion-IoU specific AP evaluation code. (19/06/2020)
+- Add motion-IoU specific AP evaluation code. Only available for ImageNet VID dataset. (19/06/2020)
 - Demo for visualization added (Support image folder and video). (17/06/2020)
 - Results of ResNet-50 backbone added. (13/04/2020)
 - Code and pretrained weights for [Deep Feature Flow](https://arxiv.org/abs/1611.07715) released. (30/03/2020)

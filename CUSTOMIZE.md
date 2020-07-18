@@ -108,4 +108,4 @@ Create your model under directory `mega_core/modeling/detector` and register it 
 - The field `MODEL.META_ARCHITECTURE` should be your model name.
 - If you feel confused, take a look at other configs.
 
-If you still feel confused with some steps above or some instructions are wrong, plaes contact me to fix it or make it more clear.
+If you still feel confused with some steps above or some instructions are wrong, please contact me to fix it or make it more clear.

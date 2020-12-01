@@ -109,7 +109,7 @@ The following command line will train MEGA_R_101_FPN_1x on 4 GPUs with Synchrono
         tools/train_net.py \
         --master_port=$((RANDOM + 10000)) \
         --config-file configs/MEGA/vid_R_101_C4_MEGA_1x.yaml \
-        --motion-specific
+        --motion-specific \
         OUTPUT_DIR training_dir/MEGA_R_101_1x
         
 Please note that:

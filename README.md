@@ -1,6 +1,7 @@
 # MEGA for Video Object Detection
 
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/memory-enhanced-global-local-aggregation-for/video-object-detection-on-imagenet-vid)](https://paperswithcode.com/sota/video-object-detection-on-imagenet-vid?p=memory-enhanced-global-local-aggregation-for)
 
 By [Yihong Chen](https://scalsol.github.io), [Yue Cao](http://yue-cao.me), [Han Hu](https://ancientmooner.github.io/), [Liwei Wang](http://www.liweiwang-pku.com/).
 

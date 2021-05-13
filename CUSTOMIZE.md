@@ -6,7 +6,7 @@ This file will give a brief introduction for:
  
 ## Prepare your own dataset
 
-We would fist give some notations.
+We would first give some notations.
 
 - Prefix: a string that is used to identify your dataset. Suppose it is `vid_custom` here.
 - Split: We need to prepare a `train` and `val` split for training and evaluating our method. When combined with the prefix, they become `vid_custom_train` and `vid_custom_val`.

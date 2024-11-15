@@ -213,6 +213,7 @@ class BoxList(object):
 
     def clip_to_image(self, remove_empty=True):
         TO_REMOVE = 1
+        self.bbox = self.bbox.clone()
         self.bbox[:, 0].clamp_(min=0, max=self.size[0] - TO_REMOVE)
         self.bbox[:, 1].clamp_(min=0, max=self.size[1] - TO_REMOVE)
         self.bbox[:, 2].clamp_(min=0, max=self.size[0] - TO_REMOVE)

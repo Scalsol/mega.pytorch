@@ -449,7 +449,7 @@ def evaluateBoxMatches(matches, args):
 
     # Here we hold the results
     # First dimension is class, second overlap
-    ap = np.zeros((len(minRegionSizes), len(args.instLabels), len(overlaps)), np.float)
+    ap = np.zeros((len(minRegionSizes), len(args.instLabels), len(overlaps)), np.float32)
 
     for dI, minRegionSize in enumerate(minRegionSizes):
         for (oI, overlapTh) in enumerate(overlaps):
@@ -650,7 +650,7 @@ def evaluateMaskMatches(matches, args):
 
     # Here we hold the results
     # First dimension is class, second overlap
-    ap = np.zeros((len(minRegionSizes), len(args.instLabels), len(overlaps)), np.float)
+    ap = np.zeros((len(minRegionSizes), len(args.instLabels), len(overlaps)), np.float32)
 
     for dI, minRegionSize in enumerate(minRegionSizes):
         for (oI, overlapTh) in enumerate(overlaps):

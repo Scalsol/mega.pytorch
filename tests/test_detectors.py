@@ -12,30 +12,30 @@ import utils
 
 CONFIG_FILES = [
     # bbox
-    "e2e_faster_rcnn_R_50_C4_1x.yaml",
-    "e2e_faster_rcnn_R_50_FPN_1x.yaml",
-    "e2e_faster_rcnn_fbnet.yaml",
+    "official_configs/e2e_faster_rcnn_R_50_C4_1x.yaml",
+    "official_configs/e2e_faster_rcnn_R_50_FPN_1x.yaml",
+    "official_configs/e2e_faster_rcnn_fbnet.yaml",
 
     # mask
-    "e2e_mask_rcnn_R_50_C4_1x.yaml",
-    "e2e_mask_rcnn_R_50_FPN_1x.yaml",
-    "e2e_mask_rcnn_fbnet.yaml",
+    "official_configs/e2e_mask_rcnn_R_50_C4_1x.yaml",
+    "official_configs/e2e_mask_rcnn_R_50_FPN_1x.yaml",
+    "official_configs/e2e_mask_rcnn_fbnet.yaml",
 
     # keypoints
     # TODO: fail to run for random model due to empty head input
     # "e2e_keypoint_rcnn_R_50_FPN_1x.yaml",
 
     # gn
-    "gn_baselines/e2e_faster_rcnn_R_50_FPN_1x_gn.yaml",
+    "official_configs/gn_baselines/e2e_faster_rcnn_R_50_FPN_1x_gn.yaml",
     # TODO: fail to run for random model due to empty head input
     # "gn_baselines/e2e_mask_rcnn_R_50_FPN_Xconv1fc_1x_gn.yaml",
-	
+
     # retinanet
-    "retinanet/retinanet_R-50-FPN_1x.yaml",
+    "official_configs/retinanet/retinanet_R-50-FPN_1x.yaml",
 
     # rpn only
-    "rpn_R_50_C4_1x.yaml",
-    "rpn_R_50_FPN_1x.yaml",
+    "official_configs/rpn_R_50_C4_1x.yaml",
+    "official_configs/rpn_R_50_FPN_1x.yaml",
 ]
 
 EXCLUDED_FOLDERS = [

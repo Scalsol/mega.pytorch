@@ -66,8 +66,7 @@ def get_gpus_nocache():
     """
     cmds = 'nvidia-smi --query-gpu=name --format=csv,noheader'.split(' ')
     with run_and_terminate_process(
-            cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            bufsize=1) as process:
+            cmds, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
         return [
             str(line).strip() for line in iter(process.stdout.readline, b'')
         ]

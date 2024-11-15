@@ -608,7 +608,7 @@ class VIDDemo(object):
             x, y = box[:2]
             s = template.format(label, score)
             cv2.putText(
-                image, s, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2
+                image, s, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2
             )
 
         return image

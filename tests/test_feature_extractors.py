@@ -4,8 +4,8 @@ import unittest
 import copy
 import torch
 # import modules to to register feature extractors
-from mega_core.modeling.backbone import build_backbone # NoQA
-from mega_core.modeling.roi_heads.roi_heads import build_roi_heads # NoQA
+from mega_core.modeling.backbone import build_backbone  # NoQA
+from mega_core.modeling.roi_heads.roi_heads import build_roi_heads  # NoQA
 from mega_core.modeling import registry
 from mega_core.structures.bounding_box import BoxList
 from mega_core.config import cfg as g_cfg
@@ -19,6 +19,7 @@ FEATURE_EXTRACTORS_CFGS = {
 FEATURE_EXTRACTORS_INPUT_CHANNELS = {
     # in_channels was not used, load through config
     "ResNet50Conv5ROIFeatureExtractor": 1024,
+    "ResNetConv52MLPFeatureExtractor": 1024,
 }
 
 
@@ -32,7 +33,14 @@ def _test_feature_extractors(
     in_channels_default = 64
 
     for name, builder in extractors.items():
-        print('Testing {}...'.format(name))
+        if name == "RDNFeatureExtractor" or name == "MEGAFeatureExtractor":
+            # Currently feature extraction is called as follows (see line 69):
+            # out = fe([input], [box_list] * N)
+            # But the RDNFeatureExtractor and MEGAFeatureExtractor extractors
+            # require inputs in a different form.
+            # TODO: test them separately.
+            continue
+
         if name in overwrite_cfgs:
             cfg = load_config(overwrite_cfgs[name])
         else:
@@ -42,15 +50,20 @@ def _test_feature_extractors(
         in_channels = overwrite_in_channels.get(
             name, in_channels_default)
 
+        print('Testing {} with {} channels...'.format(name, in_channels))
+
         fe = builder(cfg, in_channels)
         self.assertIsNotNone(
             getattr(fe, 'out_channels', None),
-            'Need to provide out_channels for feature extractor {}'.format(name)
+            'Need to provide out_channels for feature extractor {}'.format(
+                name)
         )
 
         N, C_in, H, W = 2, in_channels, 24, 32
         input = torch.rand([N, C_in, H, W], dtype=torch.float32)
         bboxes = [[1, 1, 10, 10], [5, 5, 8, 8], [2, 2, 3, 4]]
+        # Note: img_size = [384, 512] requires 1024 in_channels, therefore we
+        # override the defaults in FEATURE_EXTRACTORS_INPUT_CHANNELS
         img_size = [384, 512]
         box_list = BoxList(bboxes, img_size, "xyxy")
         out = fe([input], [box_list] * N)

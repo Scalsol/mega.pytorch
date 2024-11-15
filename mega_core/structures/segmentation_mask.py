@@ -178,11 +178,11 @@ class BinaryMaskList(object):
 
             reshaped_contour = []
             for entity in contour:
-                assert len(entity.shape) == 3
+                assert len(entity.get().shape) == 3
                 assert (
-                    entity.shape[1] == 1
+                    entity.get().shape[1] == 1
                 ), "Hierarchical contours are not allowed"
-                reshaped_contour.append(entity.reshape(-1).tolist())
+                reshaped_contour.append(entity.get().reshape(-1).tolist())
             contours.append(reshaped_contour)
         return contours
 
